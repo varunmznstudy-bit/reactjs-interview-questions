@@ -7589,8 +7589,9 @@ Technically it is possible to write nested function components but it is not sug
 
       React Fiber is the **core engine** that enables advanced features like **concurrent rendering**, **prioritization**, and **interruptibility** in React. Here's how it works:
       React Fiber is the core internal reconciliation algorithm (or "engine") introduced in React 16 that fundamentally changes how React processes updates. It works by breaking down rendering work into small, interruptible units, allowing React to prioritize tasks and enabling a more responsive user interface, especially for complex applications
+     The primary mechanism of React Fiber is to make the rendering process asynchronous and incremental, in contrast to the synchronous, all-at-once approach of the older "stack" reconciler. 
           
-      ### 1. **Fiber Tree Structure**
+      ### 1. **Fiber Tree**
           
       Each component in your app is represented by a **Fiber node** in a tree structure. A Fiber node contains:
       *   Component type
@@ -7624,7 +7625,7 @@ Technically it is possible to write nested function components but it is not sug
       *   Only after the new tree is fully ready, React **commits** it, making it the new current tree.
       * React maintains two trees: the "current" tree (what is currently rendered on the screen) and the "workInProgress" tree (where updates are being processed). After the commit phase is finished, the workInProgress tree becomes the new "current" tree by simply swapping pointers at the root, which ensures a consistent UI. 
           
-        ### 5. **Concurrency and Prioritization**
+        ### 5.  Note--- **Concurrency and Prioritization**
           
       *   React can prepare multiple versions of UI at once (e.g., during slow data loading).
       *   Updates can be **assigned priorities**, so urgent updates (like clicks) are handled faster than background work.
