@@ -7588,6 +7588,7 @@ Technically it is possible to write nested function components but it is not sug
 307. ### How does React Fiber works? Explain in detail.
 
       React Fiber is the **core engine** that enables advanced features like **concurrent rendering**, **prioritization**, and **interruptibility** in React. Here's how it works:
+      React Fiber is the core internal reconciliation algorithm (or "engine") introduced in React 16 that fundamentally changes how React processes updates. It works by breaking down rendering work into small, interruptible units, allowing React to prioritize tasks and enabling a more responsive user interface, especially for complex applications
           
       ### 1. **Fiber Tree Structure**
           
@@ -7600,22 +7601,20 @@ Technically it is possible to write nested function components but it is not sug
           
       ### 2. **Two Phases of Rendering**
           
-        #### **A. Render Phase (work-in-progress)**
+        #### **A. Render Phase (work-in-progress)(Asynchronous/Interruptible)**
           
-      *   React builds a **work-in-progress Fiber tree**.
-      *   It walks through each component (begin phase), calculates what needs to change, and collects side effects (complete phase).
-      *   This phase is **interruptible**—React can pause it and resume later.
-        #### **B. Commit Phase**
+      *   React traverses the component tree and builds a "workInProgress" tree in memory. It calculates all the necessary changes (side-effects like insertions, updates, or deletions) without touching the actual DOM. This phase can be paused, resumed, or aborted based on the priority of other tasks (e.g., user input), ensuring the main thread isn't blocked for too long.
+        
+        #### **B. Commit Phase(Synchronous/Non-interruptible)**
           
-      *   React applies changes to the **Real DOM**.
-      *   Runs lifecycle methods (e.g., `componentDidMount`, `useEffect`).
-      *   This phase is **non-interruptible** but fast.
+      *  Once the workInProgress tree is complete, React applies all the calculated changes to the actual DOM in a single, fast pass. This phase cannot be interrupted because it's when the UI is actually updated and made visible to the user
           
-        ### 3. **Work Units and Scheduling**
+        ### 3. **Prioritization and Scheduling**
           
       *   React breaks rendering into **units of work** (small tasks).
       *   These units are scheduled based on **priority** using the **React Scheduler**.
       *   If time runs out (e.g., user starts typing), React can **pause and yield** control back to the browser.
+      *   Fiber allows React to assign different priorities to different updates. High-priority tasks (like user input or animations) are scheduled with requestAnimationFrame, while lower-priority tasks (like data fetching and rendering large lists) can be deferred using a browser API like requestIdleCallback (or React's internal scheduler) during idle time.
           
         ### 4. **Double Buffering with Two Trees**
           
@@ -7623,6 +7622,7 @@ Technically it is possible to write nested function components but it is not sug
       *   **Current Tree** – what's visible on the screen.
       *   **Work-In-Progress Tree** – the next version being built in memory.
       *   Only after the new tree is fully ready, React **commits** it, making it the new current tree.
+      * React maintains two trees: the "current" tree (what is currently rendered on the screen) and the "workInProgress" tree (where updates are being processed). After the commit phase is finished, the workInProgress tree becomes the new "current" tree by simply swapping pointers at the root, which ensures a consistent UI. 
           
         ### 5. **Concurrency and Prioritization**
           
